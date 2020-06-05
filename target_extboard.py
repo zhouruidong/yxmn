@@ -6,6 +6,9 @@
 
     stm32 firmware version is cubeide1.0.2
     /raspberry_expand_version_2019_11_13
+
+    connect raspi's mosi, miso, sclk, nss, GPIO7(CE1) to
+            stm32's mosi, miso, sclk, nss, PC8
         zrd 2019.11.25
 
 
