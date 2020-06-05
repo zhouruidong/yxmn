@@ -2,7 +2,7 @@
 # -*- coding: utf_8 -*-
 """
     for pi1 & pi2
-    deal with encoder,8chn each pi
+    deal with encoder,9chn each pi
 
         2020.5.22 zrd
 """
@@ -25,7 +25,7 @@ import queue
 import random
 
 q = queue.Queue(10)
-rotary_number = 4
+rotary_number = 9
 rotary_pin_list = [None] * rotary_number
 for i in range(rotary_number):
     rotary_pin_list[i] = [None] * 3
@@ -33,7 +33,13 @@ for i in range(rotary_number):
 rotary_pin_list[0] = [2, 3, 15]
 rotary_pin_list[1] = [14, 10, 9]
 rotary_pin_list[2] = [11, 8, 7]
-rotary_pin_list[3] = [12, 13, 19]
+rotary_pin_list[3] = [0, 1, 5]
+rotary_pin_list[4] = [6, 13, 19]
+rotary_pin_list[5] = [26, 12, 16]
+rotary_pin_list[6] = [20, 17, 18]
+rotary_pin_list[7] = [27, 22, 23]
+rotary_pin_list[8] = [24, 25, 4]
+
 print(rotary_pin_list)
 
 class OutputLoopThread(threading.Thread):
@@ -177,6 +183,16 @@ class InputLoopThread(threading.Thread):
         GPIO.add_event_detect(self.rotary_pin[2][2], GPIO.FALLING, callback=self.PinDCallback_chn2, bouncetime=300)
         GPIO.add_event_detect(self.rotary_pin[3][0], GPIO.BOTH, callback=self.PinACallback_chn3, bouncetime=5)
         GPIO.add_event_detect(self.rotary_pin[3][2], GPIO.FALLING, callback=self.PinDCallback_chn3, bouncetime=300)
+        GPIO.add_event_detect(self.rotary_pin[4][0], GPIO.BOTH, callback=self.PinACallback_chn4, bouncetime=5)
+        GPIO.add_event_detect(self.rotary_pin[4][2], GPIO.FALLING, callback=self.PinDCallback_chn4, bouncetime=300)
+        GPIO.add_event_detect(self.rotary_pin[5][0], GPIO.BOTH, callback=self.PinACallback_chn5, bouncetime=5)
+        GPIO.add_event_detect(self.rotary_pin[5][2], GPIO.FALLING, callback=self.PinDCallback_chn5, bouncetime=300)
+        GPIO.add_event_detect(self.rotary_pin[6][0], GPIO.BOTH, callback=self.PinACallback_chn6, bouncetime=5)
+        GPIO.add_event_detect(self.rotary_pin[6][2], GPIO.FALLING, callback=self.PinDCallback_chn6, bouncetime=300)
+        GPIO.add_event_detect(self.rotary_pin[7][0], GPIO.BOTH, callback=self.PinACallback_chn7, bouncetime=5)
+        GPIO.add_event_detect(self.rotary_pin[7][2], GPIO.FALLING, callback=self.PinDCallback_chn7, bouncetime=300)
+        GPIO.add_event_detect(self.rotary_pin[8][0], GPIO.BOTH, callback=self.PinACallback_chn8, bouncetime=5)
+        GPIO.add_event_detect(self.rotary_pin[8][2], GPIO.FALLING, callback=self.PinDCallback_chn8, bouncetime=300)
 
         while self.__running.is_set():
             # time.sleep(10)
@@ -185,7 +201,12 @@ class InputLoopThread(threading.Thread):
             slave.set_values('HOLDING_REGISTERS', 2, self.pulse_count[1])
             slave.set_values('HOLDING_REGISTERS', 4, self.pulse_count[2])
             slave.set_values('HOLDING_REGISTERS', 6, self.pulse_count[3])
-            values = slave.get_values('HOLDING_REGISTERS', 0, 8)
+            slave.set_values('HOLDING_REGISTERS', 8, self.pulse_count[4])
+            slave.set_values('HOLDING_REGISTERS', 10, self.pulse_count[5])
+            slave.set_values('HOLDING_REGISTERS', 12, self.pulse_count[6])
+            slave.set_values('HOLDING_REGISTERS', 14, self.pulse_count[7])
+            slave.set_values('HOLDING_REGISTERS', 16, self.pulse_count[8])
+            values = slave.get_values('HOLDING_REGISTERS', 0, 18)
         return
 
     def PinACallback_chn0(self, pin):
@@ -275,6 +296,117 @@ class InputLoopThread(threading.Thread):
         slave = self.server.get_slave(self.slaveid)
         slave.set_values('HOLDING_REGISTERS', 7, 1)
         # values = slave.get_values('HOLDING_REGISTERS', 3, 1)
+
+    def PinACallback_chn4(self, pin):
+
+        if GPIO.input(self.rotary_pin[4][0]) == 1:
+            data = GPIO.input(self.rotary_pin[4][1])
+            if data == 1:
+                self.pulse_count[4] = self.pulse_count[4] - 1
+            else:
+                self.pulse_count[4] = self.pulse_count[4] + 1
+        else:
+            data = GPIO.input(self.rotary_pin[4][1])
+            if data == 1:
+                self.pulse_count[4] = self.pulse_count[4] + 1
+            else:
+                self.pulse_count[4] = self.pulse_count[4] - 1
+                # print(self.pulse_count)
+
+    def PinDCallback_chn4(self, pin):
+        # print("ch1_key_press!")
+        slave = self.server.get_slave(self.slaveid)
+        slave.set_values('HOLDING_REGISTERS', 9, 1)
+        # values = slave.get_values('HOLDING_REGISTERS', 3, 1)
+
+    def PinACallback_chn5(self, pin):
+
+        if GPIO.input(self.rotary_pin[5][0]) == 1:
+            data = GPIO.input(self.rotary_pin[5][1])
+            if data == 1:
+                self.pulse_count[5] = self.pulse_count[5] - 1
+            else:
+                self.pulse_count[5] = self.pulse_count[5] + 1
+        else:
+            data = GPIO.input(self.rotary_pin[5][1])
+            if data == 1:
+                self.pulse_count[5] = self.pulse_count[5] + 1
+            else:
+                self.pulse_count[5] = self.pulse_count[5] - 1
+                # print(self.pulse_count)
+
+    def PinDCallback_chn5(self, pin):
+        # print("ch1_key_press!")
+        slave = self.server.get_slave(self.slaveid)
+        slave.set_values('HOLDING_REGISTERS', 11, 1)
+        # values = slave.get_values('HOLDING_REGISTERS', 3, 1)
+
+    def PinACallback_chn6(self, pin):
+
+        if GPIO.input(self.rotary_pin[6][0]) == 1:
+            data = GPIO.input(self.rotary_pin[6][1])
+            if data == 1:
+                self.pulse_count[6] = self.pulse_count[6] - 1
+            else:
+                self.pulse_count[6] = self.pulse_count[6] + 1
+        else:
+            data = GPIO.input(self.rotary_pin[6][1])
+            if data == 1:
+                self.pulse_count[6] = self.pulse_count[6] + 1
+            else:
+                self.pulse_count[6] = self.pulse_count[6] - 1
+                # print(self.pulse_count)
+
+    def PinDCallback_chn6(self, pin):
+        # print("ch1_key_press!")
+        slave = self.server.get_slave(self.slaveid)
+        slave.set_values('HOLDING_REGISTERS', 13, 1)
+        # values = slave.get_values('HOLDING_REGISTERS', 3, 1)
+
+    def PinACallback_chn7(self, pin):
+
+        if GPIO.input(self.rotary_pin[7][0]) == 1:
+            data = GPIO.input(self.rotary_pin[7][1])
+            if data == 1:
+                self.pulse_count[7] = self.pulse_count[7] - 1
+            else:
+                self.pulse_count[7] = self.pulse_count[7] + 1
+        else:
+            data = GPIO.input(self.rotary_pin[7][1])
+            if data == 1:
+                self.pulse_count[7] = self.pulse_count[7] + 1
+            else:
+                self.pulse_count[7] = self.pulse_count[7] - 1
+                # print(self.pulse_count)
+
+    def PinDCallback_chn7(self, pin):
+        # print("ch1_key_press!")
+        slave = self.server.get_slave(self.slaveid)
+        slave.set_values('HOLDING_REGISTERS', 15, 1)
+        # values = slave.get_values('HOLDING_REGISTERS', 3, 1)
+
+    def PinACallback_chn8(self, pin):
+
+        if GPIO.input(self.rotary_pin[8][0]) == 1:
+            data = GPIO.input(self.rotary_pin[8][1])
+            if data == 1:
+                self.pulse_count[8] = self.pulse_count[8] - 1
+            else:
+                self.pulse_count[8] = self.pulse_count[8] + 1
+        else:
+            data = GPIO.input(self.rotary_pin[8][1])
+            if data == 1:
+                self.pulse_count[8] = self.pulse_count[8] + 1
+            else:
+                self.pulse_count[8] = self.pulse_count[8] - 1
+                # print(self.pulse_count)
+
+    def PinDCallback_chn8(self, pin):
+        # print("ch1_key_press!")
+        slave = self.server.get_slave(self.slaveid)
+        slave.set_values('HOLDING_REGISTERS', 17, 1)
+        # values = slave.get_values('HOLDING_REGISTERS', 3, 1)
+
     # def poll(self):
     #     try:
     #         slave = self.server.get_slave(self.slaveid)
@@ -386,14 +518,14 @@ def main():
         server.start()
 
         slave_1 = server.add_slave(slaveid)
-        slave_1.add_block('HOLDING_REGISTERS', cst.HOLDING_REGISTERS, 0, 16)
-        slave_1.add_block('DISCRETE_INPUTS', cst.DISCRETE_INPUTS, 0, 16)
-        slave_1.add_block('READ_INPUT_REGISTERS', cst.READ_INPUT_REGISTERS, 0, 16)
-        slave_1.add_block('COILS', cst.COILS, 0, 16)
+        slave_1.add_block('HOLDING_REGISTERS', cst.HOLDING_REGISTERS, 0, 18)
+        # slave_1.add_block('DISCRETE_INPUTS', cst.DISCRETE_INPUTS, 0, 16)
+        # slave_1.add_block('READ_INPUT_REGISTERS', cst.READ_INPUT_REGISTERS, 0, 16)
+        # slave_1.add_block('COILS', cst.COILS, 0, 16)
         # 初始化HOLDING_REGISTERS值
         # 命令行读取COILS的值 get_values 1 2 0 5
         init_value = 0x0
-        length = 16
+        length = 18
         init_value_list = [init_value]*length
         slave = server.get_slave(1)
         slave.set_values('HOLDING_REGISTERS', 0, init_value_list)
